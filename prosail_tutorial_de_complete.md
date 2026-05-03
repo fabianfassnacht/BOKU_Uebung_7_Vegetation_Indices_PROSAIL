@@ -97,20 +97,20 @@ Als nächstesn Schritt wollen wir nun alle photosynthetisch aktiven Vegetationsf
 Die sollte zu einem Plot wie in Abbildung 5 dargestellt führen.
 
 ![](Fig_05.png)
-    
-## Hausaufgabe
-
-Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. 
-
-
-
-
 
 Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B. in QGIS ansehen:
 
     writeRaster(ndvi_s2_winter, file="ndvi_s2_winter.tif")
     writeRaster(savi, file="savi.tif")
     writeRaster(vegetation, file="vegetation.tif")
+    
+## Hausaufgabe - Teil 1
+
+Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. 
+
+
+
+
 
 ## TEIL 2: Strahlungstransfermodellierung mit PROSAIL
 
@@ -303,7 +303,7 @@ Dies ergibt:
 ![](rtm_05.png)
 
 
-### Hausaufgabe
+## Hausaufgabe - Teil 2
 
 Versuchen Sie, durch Variation der PROSAIL-Parameter NDVI-Werte von 0.20,
 0.40 und 0.80 zu erzeugen. Prüfen Sie auch, ob mehrere
