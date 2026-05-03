@@ -71,8 +71,23 @@ Dies sollte zu einem identischen Ergebnis führen.
 
 ### Berechnung des SAVI
 
+Wir verfahren nun analog, um den Soil-adjusted vegetation index (SAVI) zu berechnen:
+
+    # Festlegung des soil parameters
+    L = 0.5
+    # Berechnung SAVI
+    savi = ((nir-red)/(nir+red+L)) * (1+L)
+    # ploten des berechneten Index
+    plot(savi, range=c(-0.2, 0.6))
+
+Die sollte zur in Abbildung 4 daargestellte Visualisierung führen. Wir sehen, dass die Muster des SAVI ähnlich sind wie die Muster des NDVI, der Kontrast im SAVI aber nochmal deutlich höher zu sein scheint.
+
+![](Fig_03.png)
+
+### Anwendung eines Schwellenwertes
 
 
+    
 ## Hausaufgabe
 
 Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt.
