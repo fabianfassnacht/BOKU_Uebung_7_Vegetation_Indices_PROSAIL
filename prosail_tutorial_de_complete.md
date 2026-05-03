@@ -118,7 +118,7 @@ Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B
     
 ## Hausaufgabe - Teil 1
 
-Berechnen Sie als den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. Dokumentieren Sie ihre Arbeit mit einem Screenshot der binären Karte und dem verwendeten Code.
+Berechnen Sie den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. Dokumentieren Sie ihre Arbeit mit einem Screenshot der binären Karte und dem verwendeten Code.
 
 
 
@@ -128,7 +128,7 @@ Berechnen Sie als den Bare Soil Index (siehe Vorlesung von heute) und versuchen 
 
 In diesem Tutorial lernen wir das PROSAIL-Strahlungstransfermodell für
 Vegetationsoberflächen kennen. Dieses Modell ist in R verfügbar und wir
-werden lernen, wie man damit einige Vorwärtssimulationen durchführt.
+werden lernen, wie man damit Vorwärtssimulationen durchführt.
 Strahlungstransfermodelle wie PROSAIL fassen den aktuellen Wissensstand
 über die Wechselwirkung zwischen elektromagnetischer Strahlung im
 Wellenlängenbereich von 400 bis 2500 nm und Vegetation zusammen. Sie
@@ -145,7 +145,7 @@ führen können.
 
 Die Lernziele dieses Tutorials umfassen:
 
--   Ausführen von PROSAIL im Vorwärtsmodus
+-   Erlernern der Fähigkeit PROSAIL im Vorwärtsmodus in R zu verwenden
 -   Verstehen, wie die in PROSAIL implementierten Pflanzeneigenschaften
     die Reflexionseigenschaften von Vegetation beeinflussen
 -   Ein besseres Verständnis des NDVI
@@ -179,7 +179,7 @@ Nun sind wir bereit, eine erste PROSAIL-Simulation durchzuführen. Dazu
 definieren wir die Vegetationseigenschaften innerhalb der
 PROSAIL-Funktion:
 
-    # simulate and plot simple vegetation spectrum
+    # simulation eines Vegetationsspektrums
     #######################################################
     veg_spectrum = spectra(PROSAIL(LAI=7, Cab = 40, Car=10, Cw = 0.1, Cm = 0.005, N=2, TypeLidf = 2, lidfa = 55))
 
@@ -194,13 +194,15 @@ Darstellungen, weshalb wir diesen Ansatz hier bereits einführen.
 
 Um das Spektrum zu plotten, führen wir folgenden Code aus:
 
-    # plot spectrum
+    # plot des Spektrum
     plot(400:2500, veg_spectrum[1,], type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.5), xlim=c(400,2500))
     grid()
 
 Dies führt zu der folgenden Darstellung:
 
 ![](rtm_01.png)
+
+**Abbildung 6: Darstellung des simulierten Spektrums**
 
 Ein wichtiger Punkt ist, dass die Variable **veg_spectrum** nur die
 Reflexionswerte (y-Achse) enthält, während die zugehörigen Wellenlängen
@@ -225,16 +227,18 @@ Parameter und lassen die übrigen auf ihren Standardwerten.
 Dazu erstellen wir zunächst einen Dataframe namens **parameter**, in dem
 wir eine Spalte "LAI" definieren und 10 verschiedene Werte speichern:
 
-    # simulate and plot multiple vegetation spectra
+    # Simulieren mehrere Spektren mit variierenden LAI-Werten
     #######################################################
 
-    # define parameter space
+    # Erstellung des Parameter-Files
     parameter <- data.frame(LAI = seq(1,5, length.out=10))
     parameter
 
 Dies führt zu folgender Ausgabe:
 
 ![](rtm_02.png)
+
+**Abbildung 7: Der erstelle Dataframe mit mehreren LAI Werten**
 
 Es ist natürlich auch möglich, mehrere Parameter gleichzeitig zu
 variieren. Um zu sehen, wie das funktioniert, schauen Sie sich bitte die
@@ -245,9 +249,9 @@ PROSAIL-Funktion erneut auf und verwenden den zusätzlichen Parameter
     veg_spectra = spectra(PROSAIL(parameterList = parameter))
 
 Dies erzeugt insgesamt 10 Spektren. Anschließend plotten wir alle
-Spektren nacheinander mit einer for-Schleife:
+Spektren nacheinander mit einer for-Schleife (for-Schleifen haben wir bereits im Tutorial 5 kenngelernt):
 
-    # plot spectrum
+    # plot der Spektren
     plot(400:2500, ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.5), xlim=c(400,2500))
     for(i in 1:nrow(veg_spectra)){
       lines(400:2500, veg_spectra[i,])
@@ -258,6 +262,8 @@ Dies führt zu folgendem Plot:
 
 ![](rtm_03.png)
 
+**Abbildung 8: Plot der Spektren mit verschiedenen LAI-Werten**
+
 Dieser Plot zeigt, wie sich die Spektren der Vegetation verändern, wenn
 sich der LAI ändert. Sie können weiter mit diesem Code experimentieren,
 andere Parameter variieren und z. B. Farben anpassen, um besser zu
@@ -266,7 +272,7 @@ erkennen, welche Kurve welchem LAI-Wert entspricht.
 Bitte verwenden Sie diesen Code auch für die Bearbeitung der Übungen 1
 und 2 der heutigen Vorlesung. Denken Sie daran, dass sinnvolle
 Wertebereiche für alle in PROSAIL berücksichtigten Parameter in den
-Folien angegeben sind.
+Folien der Übungen für heute zu finden sind.
 
 ### Schritt 3: Simulation von NDVI-Werten mit PROSAIL
 
@@ -276,7 +282,7 @@ NDVI-Werte zu erzeugen.
 
 Zunächst berechnen wir ein Spektrum:
 
-    # simulate and calculate NDVI
+    # Simuliere Spektrum und Berechnung des NDVI
     #######################################################
 
     veg_spectrum_1 = spectra(PROSAIL(LAI=5, Cab = 25, Car=10, Cw = 0.05, Cm = 0.005, N=2, TypeLidf = 2, lidfa = 55))[1,]
@@ -300,17 +306,21 @@ Dies ergibt folgenden Plot:
 
 ![](rtm_04.png)
 
+**Abbildung 9: Das simulierte Spektrum mit Markierung der zwei Wellenlängen, die für die Berechnung des NDVI verwendet werden werden**
+
 Nun können wir den NDVI berechnen:
 
     ndvi_1 = (veg_spectrum_1[nir_band] - veg_spectrum_1[red_band]) / (veg_spectrum_1[nir_band] + veg_spectrum_1[red_band])
 
-Zur Ausgabe:
+Und uns ausgeben lassen. Der Befehl **round()**  sorgt dafür, dass wir den NDVI mit nur zwei Stellen hinter dem Komma ausgeben:
 
     round(ndvi_1,2)
 
 Dies ergibt:
 
 ![](rtm_05.png)
+
+**Abbildung 10: Ausgabe des berechneten NDVI-Werten**
 
 
 ## Hausaufgabe - Teil 2
