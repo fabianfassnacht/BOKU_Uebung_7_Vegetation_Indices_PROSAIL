@@ -1,4 +1,7 @@
-## Strahlungstransfermodellierung mit PROSAIL
+## TEIL 1: Berechnung von Vegetationsindizes in R
+
+
+## TEIL 2: Strahlungstransfermodellierung mit PROSAIL
 
 ### Überblick
 
@@ -12,11 +15,10 @@ sind ein interessantes Werkzeug für wissenschaftliche Studien, aber
 auch, um besser zu verstehen, wie bestimmte Pflanzeneigenschaften die
 Reflexionseigenschaften von Vegetation beeinflussen.
 
-Im heutigen theoretischen Teil haben Sie bereits etwas mehr über PROSAIL
-gelernt. Falls Sie an einer noch detaillierteren Erklärung seiner
-Funktionalitäten interessiert sind, wurde ein umfassendes Review-Paper
-zu PROSAIL (Jacquemoud et al. 2009) bereitgestellt. Dieses Review wurde
-von den Hauptentwicklern des Modells verfasst.
+In unserem Beispiel werden wir zuerst einige Vegetationsspektren simulieren und
+diese danach für die Berechnung von NDVI-Werten verwenden. Wir werden feststellen,
+dass verschiedene Kombinationen von Pflanzeneigenschaften zu ähnlichen NDVI-Werten
+führen können.
 
 ### Lernziele
 
@@ -189,7 +191,10 @@ Dies ergibt:
 
 ![](rtm_05.png)
 
-Versuchen Sie nun, durch Variation der Parameter NDVI-Werte von 0.20,
+
+### Hausaufgabe
+
+Versuchen Sie, durch Variation der PROSAIL-Parameter NDVI-Werte von 0.20,
 0.40 und 0.80 zu erzeugen. Prüfen Sie auch, ob mehrere
 Parameterkombinationen zu denselben NDVI-Werten führen, und überlegen
 Sie, was das für die Aussagekraft des NDVI bedeutet.
