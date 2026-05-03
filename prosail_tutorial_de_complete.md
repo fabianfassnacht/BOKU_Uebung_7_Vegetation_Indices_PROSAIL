@@ -82,15 +82,35 @@ Wir verfahren nun analog, um den Soil-adjusted vegetation index (SAVI) zu berech
 
 Die sollte zur in Abbildung 4 daargestellte Visualisierung führen. Wir sehen, dass die Muster des SAVI ähnlich sind wie die Muster des NDVI, der Kontrast im SAVI aber nochmal deutlich höher zu sein scheint.
 
-![](Fig_03.png)
+![](Fig_04.png)
 
 ### Anwendung eines Schwellenwertes
 
+Als nächstesn Schritt wollen wir nun alle photosynthetisch aktiven Vegetationsflächen im Satellitenbild mittels des NDVIs oder des SAVIs identifizieren und uns das Ergebnis als eine binäre Karte ausgeben lassen. Die Anwendung eines Schwellenwerts auf ein Raster ist in R sehr einfach. Wir verwenden hierfür einfach die größer-kleiner Zeichen:
 
+    # Selektion aller Pixel mit einem NDVI-Wert größer 0.3
+    # Diese Pixel bekommen den Wert 1 zugeordnet, alle anderen den Wert 0
+    vegetation <- ndvi_s2_winter > 0.3
+    # Plot des resultierenden binären Bildes    
+    plot(vegetation)
+
+Die sollte zu einem Plot wie in Abbildung 5 dargestellt führen.
+
+![](Fig_05.png)
     
 ## Hausaufgabe
 
-Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt.
+Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. 
+
+
+
+
+
+Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B. in QGIS ansehen:
+
+    writeRaster(ndvi_s2_winter, file="ndvi_s2_winter.tif")
+    writeRaster(savi, file="savi.tif")
+    writeRaster(vegetation, file="vegetation.tif")
 
 ## TEIL 2: Strahlungstransfermodellierung mit PROSAIL
 
