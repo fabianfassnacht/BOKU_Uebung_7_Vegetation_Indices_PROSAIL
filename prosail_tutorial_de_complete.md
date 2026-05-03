@@ -52,13 +52,30 @@ Und plotten das Ergebnis:
 
 ACHTUNG: Da unser Ergebnisbild nur einen einzelnes Band (den Vegetationindex) beinhaltet können wir hier den plotRGB Befehl nicht verwenden. Aber der Standard plot() Befehl sollte funktionieren und zum in Abbildung 2 daragestellten Ergebnis führen.
 
+![](Fig_02.png)
 
-Alternativ können wir uns den Weg über die zwei zusätzlichen Variablen auch sparen:
+Wir sehen, dass der Kontrast in diesem Bild relativ schlecht ist. Dies wird dadurch verursacht, dass wir im Bild ein paar wenige Pixel mit sehr niedrigen NDVi Werten von -0.8 haben. Der Plot-Befehl passt die dargestellte Farbskala hierauf an. Wenn wir den Kontrast erhöhen wollen, können wir den dargestellten Wertebereich etwas reduzieren. Z.B. auf den Wertebereich -0.2 bis 0.6:
+
+    # Plotten des NDVI-Rasters mit reduzierten Wertebereich
+    plot(ndvi_s2_winter, range=c(-0.2, 0.6))
+
+Dies führt zu einem kontrastreicheren Bild wie in Abbildung 3 dargestellt.
+
+![](Fig_03.png)
+
+Alternativ können wir uns den Weg über die zwei zusätzlichen Variablen auch sparen und den NDVI direkt über den Zugriff auf die Kanäle berechnen:
 
     ndvi_s2_winter <- (s2_winter[[7]]-s2_winter[[3]])/(s2_winter[[7]]+s2_winter[[3])
 
 Dies sollte zu einem identischen Ergebnis führen.
-    
+
+### Berechnung des SAVI
+
+
+
+## Hausaufgabe
+
+Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt.
 
 ## TEIL 2: Strahlungstransfermodellierung mit PROSAIL
 
