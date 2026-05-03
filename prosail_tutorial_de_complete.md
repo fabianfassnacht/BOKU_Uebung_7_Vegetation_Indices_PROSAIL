@@ -1,5 +1,64 @@
 ## TEIL 1: Berechnung von Vegetationsindizes in R
 
+### Überblick
+
+Im ersten Teil des heutigen Tutorials werden wir lernen, wie man in R aus Satellitenbildern Vegetationsindizes berechnen kann. 
+Wir werden wiederum die drei Sentinel-2 Satellitenbilder von letzter Woche verwenden, die sie hier finden können:
+
+https://drive.google.com/drive/folders/1IQPJTlW2SKx1sOYTKBII3vTHnofXg1xE?usp=sharing
+
+Falls Sie die Daten nicht mehr vorliegen haben, laden Sie sie bitte erneut herunter und speichern Sie sie in einem Ordner, in dem Sie sie wieder finden können.
+
+### Berechnung des NDVI
+
+Als ersten werden wir den NDVI berechnen. Wir werden sehen, dass dies eine relativ einfache Aufgabe ist. Die einzige kleine Herausforderung stellt dabei die Auswahl der richtigen Kanäle dar. Unsere vorbereiteten Sentinel-2 Satellitenbilder haben jeweils 10 Kanäle. Die 10 Kanäle entsprechen den Kanälen mit 10 m und 20 m Pixelgröße. 
+
+Diese sind in Abbildung 1 markiert. Es ist wichtig darauf zu achten, dass die Bezeichnungen der Bänder in unseren Datensätzen nicht mehr 1:1 den offiziellen Bezeichnungen des Sentinel-2 Satelliten entsprechen.
+
+![](Fig_01.png)
+
+Da wir die Bänder 1, 9 und 10 (mit 60 m Pixelgröße) gelöscht haben ist unser Band 1 im Rasterstapel das Band 2 und dementsprechend unser Band 10 im Rasterstapel das Band 12. Es ist auch wichtig darauf zu achten, dass es bei Sentinel-2 insgesamt 5 Bänder gibt, die im nahren Infrarot-Bereich liegen. In der Regel bietet es sich an für die Berechnung des NDVIs das Band 8 zu verwenden, da dieses nativ 10 m Auflösung hat und nicht von 20 m auf 10 m Auflösung geresampled wurde. 
+
+Wie berechnen wir jetzt also den NDVI in R? Zuerst laden wir das Satellitenbild, wie bereits gelernt:
+
+    # Laden des benötigten Paketes
+    require(terra)
+
+    # Wechseln des Verzeichnisses
+    setwd("E:/Uebungen_Tag7/")
+
+    # Laden des ersten Satellitenbildes
+    s2_winter <- rast("Sentinel_2.tif")
+
+Wir können uns das Bild ansehen, um zu überprüfen, ob das Laden richtig funktioniert hat. 
+
+    # Plotten der Satellitenbildszene u
+    plotRGB(s2_winter, r=3, g=2, b=1, stretch="hist")
+
+Nun berechnen wir den NDVI. Dafür muss man auf einzelne Kanäle zugreifen. Dies funktioniert über doppelte eckige Klammern. Wir haben zwei Optionen, wir können entweder zuerst die zwei benötigten Bänder in separate Variablen speichern, oder wir können in der NDVI Formel direkt auf die Kanäle mit den eckigen Klammern zugreifen. Zuerst die Option mit zwei neuen Variablen:
+
+    # Extraktion des roten Kanals:
+    red <- s2_winter[[3]]
+    nir <- s2_winter[[7]]
+
+Dann berechnen wir den NDVI mit der bekannten Formel: 
+
+    # Berechnung NDVI
+    ndvi_s2_winter <- (nir-red)/(nir+red)
+
+Und plotten das Ergebnis:
+
+    plot(ndvi_s2_winter)
+
+ACHTUNG: Da unser Ergebnisbild nur einen einzelnes Band (den Vegetationindex) beinhaltet können wir hier den plotRGB Befehl nicht verwenden. Aber der Standard plot() Befehl sollte funktionieren und zum in Abbildung 2 daragestellten Ergebnis führen.
+
+
+Alternativ können wir uns den Weg über die zwei zusätzlichen Variablen auch sparen:
+
+    ndvi_s2_winter <- (s2_winter[[7]]-s2_winter[[3]])/(s2_winter[[7]]+s2_winter[[3])
+
+Dies sollte zu einem identischen Ergebnis führen.
+    
 
 ## TEIL 2: Strahlungstransfermodellierung mit PROSAIL
 
