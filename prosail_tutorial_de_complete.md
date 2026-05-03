@@ -3,7 +3,7 @@
 ### Überblick
 
 Im ersten Teil des heutigen Tutorials werden wir lernen, wie man in R aus Satellitenbildern Vegetationsindizes berechnen kann. 
-Wir werden wiederum die drei Sentinel-2 Satellitenbilder von letzter Woche verwenden, die sie hier finden können:
+Wir werden wiederum das Sentinel-2 Satellitenbild von letzter Woche verwenden, das Sie hier finden können:
 
 https://drive.google.com/drive/folders/1IQPJTlW2SKx1sOYTKBII3vTHnofXg1xE?usp=sharing
 
@@ -11,13 +11,15 @@ Falls Sie die Daten nicht mehr vorliegen haben, laden Sie sie bitte erneut herun
 
 ### Berechnung des NDVI
 
-Als ersten werden wir den NDVI berechnen. Wir werden sehen, dass dies eine relativ einfache Aufgabe ist. Die einzige kleine Herausforderung stellt dabei die Auswahl der richtigen Kanäle dar. Unsere vorbereiteten Sentinel-2 Satellitenbilder haben jeweils 10 Kanäle. Die 10 Kanäle entsprechen den Kanälen mit 10 m und 20 m Pixelgröße. 
+Als ersten Schritt werden wir den NDVI berechnen. Wir werden sehen, dass dies eine relativ einfache Aufgabe ist. Die einzige kleine Herausforderung stellt dabei die Auswahl der richtigen Kanäle dar. Unsere vorbereiteten Sentinel-2 Satellitenbilder haben jeweils 10 Kanäle. Die 10 Kanäle entsprechen den Kanälen mit 10 m und 20 m Pixelgröße. 
 
 Diese sind in Abbildung 1 markiert. Es ist wichtig darauf zu achten, dass die Bezeichnungen der Bänder in unseren Datensätzen nicht mehr 1:1 den offiziellen Bezeichnungen des Sentinel-2 Satelliten entsprechen.
 
 ![](Fig_01.png)
 
-Da wir die Bänder 1, 9 und 10 (mit 60 m Pixelgröße) gelöscht haben ist unser Band 1 im Rasterstapel das Band 2 und dementsprechend unser Band 10 im Rasterstapel das Band 12. Es ist auch wichtig darauf zu achten, dass es bei Sentinel-2 insgesamt 5 Bänder gibt, die im nahren Infrarot-Bereich liegen. In der Regel bietet es sich an für die Berechnung des NDVIs das Band 8 zu verwenden, da dieses nativ 10 m Auflösung hat und nicht von 20 m auf 10 m Auflösung geresampled wurde. 
+**Abbildung 1: Sentinel-2 Bänder**
+
+Da wir die Bänder 1, 9 und 10 (mit 60 m Pixelgröße) gelöscht haben, ist unser Band 1 im Rasterstapel das Band 2 und dementsprechend unser Band 10 im Rasterstapel das Band 12. Es ist auch wichtig darauf zu achten, dass es bei Sentinel-2 insgesamt 5 Bänder gibt, die im nahen Infrarot-Bereich liegen. In der Regel bietet es sich an für die Berechnung des NDVIs das Band 8 zu verwenden, da dieses nativ 10 m Auflösung hat und nicht von 20 m auf 10 m Auflösung geresampled wurde. 
 
 Wie berechnen wir jetzt also den NDVI in R? Zuerst laden wir das Satellitenbild, wie bereits gelernt:
 
@@ -27,7 +29,7 @@ Wie berechnen wir jetzt also den NDVI in R? Zuerst laden wir das Satellitenbild,
     # Wechseln des Verzeichnisses
     setwd("E:/Uebungen_Tag7/")
 
-    # Laden des ersten Satellitenbildes
+    # Laden des Satellitenbildes
     s2_winter <- rast("Sentinel_2.tif")
 
 Wir können uns das Bild ansehen, um zu überprüfen, ob das Laden richtig funktioniert hat. 
@@ -35,10 +37,11 @@ Wir können uns das Bild ansehen, um zu überprüfen, ob das Laden richtig funkt
     # Plotten der Satellitenbildszene u
     plotRGB(s2_winter, r=3, g=2, b=1, stretch="hist")
 
-Nun berechnen wir den NDVI. Dafür muss man auf einzelne Kanäle zugreifen. Dies funktioniert über doppelte eckige Klammern. Wir haben zwei Optionen, wir können entweder zuerst die zwei benötigten Bänder in separate Variablen speichern, oder wir können in der NDVI Formel direkt auf die Kanäle mit den eckigen Klammern zugreifen. Zuerst die Option mit zwei neuen Variablen:
+Nun berechnen wir den NDVI. Dafür muss man auf einzelne Kanäle des Satellitenbilds zugreifen. Dies funktioniert über doppelte eckige Klammern und Indizes. Wir haben zwei Optionen, wir können entweder zuerst die zwei benötigten Bänder in separate Variablen speichern, oder wir können in der NDVI Formel direkt auf die Kanäle mit den eckigen Klammern zugreifen. Zuerst die Option mit zwei neuen Variablen:
 
-    # Extraktion des roten Kanals:
+    # Extraktion des roten Kanals - die Zahl in den eckigen Klammern gibt an welches Band wir extrahieren wollen
     red <- s2_winter[[3]]
+    # Extraktion des nahen Infrarot Kanals
     nir <- s2_winter[[7]]
 
 Dann berechnen wir den NDVI mit der bekannten Formel: 
@@ -50,9 +53,11 @@ Und plotten das Ergebnis:
 
     plot(ndvi_s2_winter)
 
-ACHTUNG: Da unser Ergebnisbild nur einen einzelnes Band (den Vegetationindex) beinhaltet können wir hier den plotRGB Befehl nicht verwenden. Aber der Standard plot() Befehl sollte funktionieren und zum in Abbildung 2 daragestellten Ergebnis führen.
+ACHTUNG: Da unser Ergebnisbild nur einen einzelnes Band (den Vegetationindex) beinhaltet, können wir hier den plotRGB Befehl nicht verwenden. Aber der Standard plot() Befehl sollte funktionieren und zum in Abbildung 2 daragestellten Ergebnis führen.
 
 ![](Fig_02.png)
+
+**Abbildung 2: Der berechnete NDVI im Standartplot**
 
 Wir sehen, dass der Kontrast in diesem Bild relativ schlecht ist. Dies wird dadurch verursacht, dass wir im Bild ein paar wenige Pixel mit sehr niedrigen NDVi Werten von -0.8 haben. Der Plot-Befehl passt die dargestellte Farbskala hierauf an. Wenn wir den Kontrast erhöhen wollen, können wir den dargestellten Wertebereich etwas reduzieren. Z.B. auf den Wertebereich -0.2 bis 0.6:
 
@@ -62,6 +67,9 @@ Wir sehen, dass der Kontrast in diesem Bild relativ schlecht ist. Dies wird dadu
 Dies führt zu einem kontrastreicheren Bild wie in Abbildung 3 dargestellt.
 
 ![](Fig_03.png)
+
+
+**Abbildung 3: Der berechnete NDVI mit angepassten Ploteinstellungen**
 
 Alternativ können wir uns den Weg über die zwei zusätzlichen Variablen auch sparen und den NDVI direkt über den Zugriff auf die Kanäle berechnen:
 
@@ -73,23 +81,25 @@ Dies sollte zu einem identischen Ergebnis führen.
 
 Wir verfahren nun analog, um den Soil-adjusted vegetation index (SAVI) zu berechnen:
 
-    # Festlegung des soil parameters
+    # Festlegung des Boden-Parameters
     L = 0.5
     # Berechnung SAVI
     savi = ((nir-red)/(nir+red+L)) * (1+L)
     # ploten des berechneten Index
     plot(savi, range=c(-0.2, 0.6))
 
-Die sollte zur in Abbildung 4 daargestellte Visualisierung führen. Wir sehen, dass die Muster des SAVI ähnlich sind wie die Muster des NDVI, der Kontrast im SAVI aber nochmal deutlich höher zu sein scheint.
+Die sollte zur in Abbildung 4 dargestellten Visualisierung führen. Wir sehen, dass die Muster des SAVI ähnlich sind wie die Muster des NDVI, der Kontrast im SAVI aber nochmal deutlich höher zu sein scheint.
 
 ![](Fig_04.png)
 
+**Abbildung 4: Der berechnete SAVI mit angepassten Ploteinstellungen**
+
 ### Anwendung eines Schwellenwertes
 
-Als nächstesn Schritt wollen wir nun alle photosynthetisch aktiven Vegetationsflächen im Satellitenbild mittels des NDVIs oder des SAVIs identifizieren und uns das Ergebnis als eine binäre Karte ausgeben lassen. Die Anwendung eines Schwellenwerts auf ein Raster ist in R sehr einfach. Wir verwenden hierfür einfach die größer-kleiner Zeichen:
+Als nächsten Schritt wollen wir nun alle photosynthetisch aktiven Vegetationsflächen im Satellitenbild mittels des NDVIs oder des SAVIs identifizieren und uns das Ergebnis als eine binäre Karte ausgeben lassen. Wir gehen davon aus, dass photosynthetisch aktive Vegetationsflächen einen hohen NDVI bzw. SAVI Wert haben. Die Anwendung eines Schwellenwerts auf ein Raster ist in R sehr einfach. Wir verwenden hierfür einfach die größer-kleiner-Zeichen:
 
     # Selektion aller Pixel mit einem NDVI-Wert größer 0.3
-    # Diese Pixel bekommen den Wert 1 zugeordnet, alle anderen den Wert 0
+    # Pixel > 0.3 bekommen den Wert 1 zugeordnet, alle anderen den Wert 0
     vegetation <- ndvi_s2_winter > 0.3
     # Plot des resultierenden binären Bildes    
     plot(vegetation)
@@ -97,6 +107,8 @@ Als nächstesn Schritt wollen wir nun alle photosynthetisch aktiven Vegetationsf
 Die sollte zu einem Plot wie in Abbildung 5 dargestellt führen.
 
 ![](Fig_05.png)
+
+**Abbildung 5: Binäre Karte aller Pixel mit einem VIDVI > 0.3**
 
 Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B. in QGIS ansehen:
 
@@ -106,9 +118,7 @@ Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B
     
 ## Hausaufgabe - Teil 1
 
-Berechnen Sie als nun auch den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. 
-
-
+Berechnen Sie als den Bare Soil Index (siehe Vorlesung von heute) und versuchen Sie einen Schwellenwert anzuwenden, der zu einer binären Karte führt, die alle offenen Boden-Flächen von allen anderen Landbedeckungsklassen gut abtrennt. Dokumentieren Sie ihre Arbeit mit einem Screenshot der binären Karte und dem verwendeten Code.
 
 
 
