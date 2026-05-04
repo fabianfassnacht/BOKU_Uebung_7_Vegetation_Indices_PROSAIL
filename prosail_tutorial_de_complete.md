@@ -188,62 +188,46 @@ Um eine Vorwärtssimulation durchzuführen, müssen wir eine umfangreiche Zahl a
     # ewt = equivalent water thickness
     # lma = leaf mass per area
     # n_struct = Strukturparameter des Blattes (vereinfacht: wie "dick" ist das Blatt; korrekter:
-    # wieviele Ebenen an Zellwand-Luft  
+    # wieviele Ebenen an Parenchymzellen an denen eine Zellwand an Luft angrenzt gibt es)  
                                  
-    # define input variables for SAIL. 
-    lai <- 5        # LAI
-    hotspot <- 0.1  # Hot spot parameter
-    type_lidf <- 2  # leaf inclination distribution function 
-    lidf_a <- 30    # mean leaf angle
-    tts <- 30       # geometry of acquisition: sun zenith angle
-    tto <- 10       # geometry of acquisition: observer zenith angle
-    psi <- 90       # geometry of acquisition: sun-observer azimuth 
-    rsoil <- spec_soil_atbd_v2$soil_01 # soil reflectance 
-    # several soil optical properties are available
-    # - spec_soil: dark ($min_refl) and bright ($max_refl) soil reflectance
-    # - spec_soil_atbd_v2 : selection of 7 reflectance spectral used in S2 ATBD v2
-    # - spec_soil_ossl: selection of 47 reflectance spectral representative of OSSL
+    # Für die Simulation von Vegetationsspektren auf "Canopy"-Ebene (Kronendach bzw. Grasland) wird
+    # ein weitere Modell namens "SAIL" verwendet, welches zusätzliche Informationen zur Verteilung
+    # der Blätter und der Beobachtungsgeometrie benötigt:
+    lai <- 5        # LAI (leaf area index - wieviel Blattfläche pro Bodengrundfläche)
+    hotspot <- 0.1  # Hot spot parameter (Intensität des Hotspot-Effekt => hängt von der Vegetationsart ab)
+    type_lidf <- 2  # leaf inclination distribution function (Blattwinkelverteilung)
+    lidf_a <- 30    # mean leaf angle (mittlerer Blattwinkel)
+    tts <- 30       # geometry of acquisition: sun zenith angle (Sonnenzenithwinkel)
+    tto <- 10       # geometry of acquisition: observer zenith angle (Beobachtungszenithwinkel)
+    psi <- 90       # geometry of acquisition: sun-observer azimuth (Azimuthwinkel zwischen Sonne und BeobachterIn)
+    rsoil <- spec_soil_atbd_v2$soil_01 # soil reflectance (Bodenspektrum)
+    # verschiedene Bodenspektren sind verfügbar:
+    # - spec_soil: dark ($min_refl) and bright ($max_refl) soil reflectance (heller und dunkler Boden)
+    # - spec_soil_atbd_v2 : selection of 7 reflectance spectral used in S2 ATBD v2 (7 im Feld gemessene Bodenspektren)
+    # - spec_soil_ossl: selection of 47 reflectance spectral representative of OSSL (weitere 47 im Feld gemessene Spektren)
     
-    # run prosail with 4SAIL
+
+Nachdem alle Parameter definiert wurde, können wir PROSAIL im Vorwärtsmodus laufen lassen und ein simuliertes Spektrum erstellen. Hierfür verwenden wir folgenden Code:
+
     refl_prosail <- prosail(input_prospect = input_prospect, 
                             type_lidf = type_lidf, lidf_a = lidf_a, lai = lai,
                             hotspot = hotspot, tts = tts, tto = tto, psi = psi, 
                             rsoil = rsoil)
     
-    
-Anschließend können wir uns die Hilfeseite der Hauptfunktion des
-hsdar-Pakets ansehen, die "PROSAIL" heißt:
+Wie bereits angedeutet, ist das hier verwendete PROSAIL Model relativ komplex und dementsprechend ist der Output von der "prosail"-Funktion nicht einfach nur ein einzelnes Spektrum sondern es werden insgesamt 9 Outputs erstellt. Konkret wird z.B. unterschieden zwischen hemisphärischer Abstrahlung (die in alle Richtungen einer imaginäre Halbkugel über der Vegetation erfolgt) und bidirektionalen Effekten (d.h., dass Strahlung in bestimmte Richtungen aufgrund der Sonnen-Beobachter-Geometrie in unterschiedlicher Intesität reflektiert wird). In unserem konkreten Fall führt dies zu weit und wir werden daher diese Ergebnisse vereinfachen zu einem einzelnen Spektrum, welches die Reflektanz in Richtung des Beobachters repräsentiert:
 
-    ?PROSAIL
 
-Wenn Sie sich den Funktionsaufruf ansehen, werden Sie feststellen, dass
-es relativ einfach ist, ein Spektrum mit der PROSAIL-Funktion zu
-simulieren. Sie müssen im Wesentlichen nur Werte für alle
-Pflanzeneigenschaften sowie zusätzlich für die Sonnen-Sensor-Geometrie
-definieren und die Funktion ausführen. Falls Sie nicht alle Parameter
-angeben, werden für die verbleibenden Parameter Standardwerte verwendet.
+# Reduktion der komplexen prosail-Ausgaben in ein einzelnes Spektrum in Richtung des Beobachters
+surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
+                                 rsot = refl_prosail$rsot,
+                                 tts = tts,
+                                 spec_atm_sensor = spec_atm)
 
-Nun sind wir bereit, eine erste PROSAIL-Simulation durchzuführen. Dazu
-definieren wir die Vegetationseigenschaften innerhalb der
-PROSAIL-Funktion:
 
-    # simulation eines Vegetationsspektrums
-    #######################################################
-    veg_spectrum = spectra(PROSAIL(LAI=7, Cab = 40, Car=10, Cw = 0.1, Cm = 0.005, N=2, TypeLidf = 2, lidfa = 55))
-
-Wie Sie sehen, rufen wir die PROSAIL-Funktion innerhalb einer weiteren
-Funktion namens "spectra()" auf. Diese Funktion extrahiert direkt das
-resultierende Spektrum aus dem "speclib"-Objekt, das von der
-PROSAIL-Funktion erzeugt wird. Diese speclib-Objekte enthalten viele
-zusätzliche Informationen über den Funktionsaufruf usw., und es wäre
-auch möglich, diese Objekte direkt zu plotten. Die Verwendung der
-spectra()-Funktion bietet jedoch Vorteile für einige der folgenden
-Darstellungen, weshalb wir diesen Ansatz hier bereits einführen.
-
-Um das Spektrum zu plotten, führen wir folgenden Code aus:
+Um das resultierende Spektrum zu plotten, führen wir folgenden Code aus:
 
     # plot des Spektrum
-    plot(400:2500, veg_spectrum[1,], type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.5), xlim=c(400,2500))
+    plot(400:2500, surf_refl_4SAIL[,1], type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.6), xlim=c(400,2500))
     grid()
 
 Dies führt zu der folgenden Darstellung:
@@ -254,63 +238,66 @@ Dies führt zu der folgenden Darstellung:
 
 Ein wichtiger Punkt ist, dass die Variable **veg_spectrum** nur die
 Reflexionswerte (y-Achse) enthält, während die zugehörigen Wellenlängen
-nach Anwendung der Funktion "spectra()" nicht mehr verfügbar sind. Wir
-müssen daher wissen, dass PROSAIL die Reflexion der Vegetationsschicht
-für Wellenlängen zwischen 400 und 2500 nm (in Schritten von 1 nm)
+nicht direkt verfügbar sind. Wir müssen daher wissen, dass PROSAIL die Reflexion der 
+Vegetationsschicht für Wellenlängen zwischen 400 und 2500 nm (in Schritten von 1 nm)
 simuliert. Wir können die Reflexionswerte daher darstellen, indem wir
 eine Sequenz (**400:2500**) als x-Werte verwenden.
 
 Sie können nun ein wenig mit diesem einfachen Aufruf von PROSAIL
 experimentieren und beobachten, wie sich das Spektrum verändert, wenn
-Sie eine oder mehrere Vegetationseigenschaften ändern.
+Sie eine oder mehrere Vegetationseigenschaften (die Input zur prospect bzw. prosail Funktion) ändern.
 
 ### Schritt 2: Untersuchung des Einflusses einzelner Parameter auf das PROSAIL-Signal
 
-Das hsdar-Paket bietet eine praktische Möglichkeit, mehrere Spektren
-gleichzeitig zu simulieren. Dazu müssen wir einen Dataframe definieren,
-in dem Wertebereiche für die zu variierenden Pflanzeneigenschaften
-gespeichert sind. Im folgenden Beispiel variieren wir nur einen
-Parameter und lassen die übrigen auf ihren Standardwerten.
+Im nächsten Schritt schauen wir uns an, wie sich die simulierten Spektren verändern, wenn wir einen der Parameter systematisch verändern. Konkret schauen wir uns den Parameter LAI an, da dieser einen relativ starken Einfluss auf die Amplitude (die Höhe der Reflentanz) des Spektrums hat.
 
-Dazu erstellen wir zunächst einen Dataframe namens **parameter**, in dem
-wir eine Spalte "LAI" definieren und 10 verschiedene Werte speichern:
+Dazu erstellen wir zunächst einen variable names **lai_loop** in der wir einen Vektor erstellen in dem Zahlen von 1 bis 7 in Schritten von 0.5 abgespeichert sind. LAI-Werte von 1-7 decken die typische Variabilität in Wäldern und Grasländern ganz gut ab:
 
-    # Simulieren mehrere Spektren mit variierenden LAI-Werten
-    #######################################################
+    lai_loop <- seq(1,7,0.5)
+    lai_loop
 
-    # Erstellung des Parameter-Files
-    parameter <- data.frame(LAI = seq(1,5, length.out=10))
-    parameter
+Als nächstes erstellen wir eine leere **Liste** names **res**. Wie bereits in einem früheren Tutorial gelernt sind Listen ein Speichercontainer in R in dem wir flexibel Ergebnisse speichern können.
+    
+    res <- list()
+
+Nun verwenden wir einen for-loop (kennen wir ebenfalls bereit) in dem wir durch die verschiedenen Einträge in der **lai-loop** Variable gehen und jeweils dem Parameter **lai** in der **prosail**-Funktion den aktuellen Wert des aktuellen Durchlaufs geben. D.h., für i=1 (erster Durchlauf) ist der LAI = 1, für i=2 (zweiter Durchlauf) ist der LAI=1.5 usw.
+
+    # Beginn des for-loops
+    for (i in 1:length(lai_loop)){
+
+      # Simulieren des Spektrums. Der Parameter lai ändert sich bei jedem Durchlauf da immer der i-ste Wert im Vektor "lai-loop" verwendet wird
+      refl_prosail <- prosail(input_prospect = input_prospect, 
+                              type_lidf = type_lidf, lidf_a = lidf_a, lai = lai_loop[i],
+                              hotspot = hotspot, tts = tts, tto = tto, psi = psi, 
+                              rsoil = rsoil)
+      
+      # Reduktion zu einem einzelnen Spektrum
+      surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
+                                       rsot = refl_prosail$rsot,
+                                       tts = tts,
+                                       spec_atm_sensor = spec_atm)
+
+      # Speichern des aktuellen Spektrums in die Liste (am Schluss werden wir 14 Spektren in der Liste haben)
+      res[[i]] <- surf_refl_4SAIL
+      
+    }
+
+    # Umwandlung der Liste in einen data.frame
+    res_df <- do.call(cbind, res)
+    
+Nachdem wir alle Spektren erfolgreich simuliert haben, plotten wir alle 14 Spektren in ein einzelnes Plotfenster. Dafür wenden wir wiederum den Trick an, dass wir zuerst nur ein Spektrum plotten und danach mit dem for-loop alle anderen 13 Spektren "hinterherplotten" aber dabei die Achsen und die Achsenbeschriftungen nicht mehr plotten.
+
+    plot(400:2500, res_df[,1], type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.8), xlim=c(400,2500))
+    for (i in 2:14){
+      par(new=T)
+      plot(400:2500, res_df[,i], type="l", ylab="", xlab="", axes=F, ylim=c(0,0.8), xlim=c(400,2500))
+    }
+    grid()
+
 
 Dies führt zu folgender Ausgabe:
 
 ![](rtm_02.png)
-
-**Abbildung 7: Der erstelle Dataframe mit mehreren LAI Werten**
-
-Es ist natürlich auch möglich, mehrere Parameter gleichzeitig zu
-variieren. Um zu sehen, wie das funktioniert, schauen Sie sich bitte die
-Hilfe der "PROSAIL"-Funktion an. In unserem Fall rufen wir nun die
-PROSAIL-Funktion erneut auf und verwenden den zusätzlichen Parameter
-"**parameterList**", den wir auf den zuvor erstellten Dataframe setzen:
-
-    veg_spectra = spectra(PROSAIL(parameterList = parameter))
-
-Dies erzeugt insgesamt 10 Spektren. Anschließend plotten wir alle
-Spektren nacheinander mit einer for-Schleife (for-Schleifen haben wir bereits im Tutorial 5 kenngelernt):
-
-    # plot der Spektren
-    plot(400:2500, ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.5), xlim=c(400,2500))
-    for(i in 1:nrow(veg_spectra)){
-      lines(400:2500, veg_spectra[i,])
-    }
-    grid()
-
-Dies führt zu folgendem Plot:
-
-![](rtm_03.png)
-
-**Abbildung 8: Plot der Spektren mit verschiedenen LAI-Werten**
 
 Dieser Plot zeigt, wie sich die Spektren der Vegetation verändern, wenn
 sich der LAI ändert. Sie können weiter mit diesem Code experimentieren,
@@ -330,10 +317,17 @@ NDVI-Werte zu erzeugen.
 
 Zunächst berechnen wir ein Spektrum:
 
-    # Simuliere Spektrum und Berechnung des NDVI
-    #######################################################
-
-    veg_spectrum_1 = spectra(PROSAIL(LAI=5, Cab = 25, Car=10, Cw = 0.05, Cm = 0.005, N=2, TypeLidf = 2, lidfa = 55))[1,]
+      # Simulieren des Spektrums. Der Parameter lai ändert sich bei jedem Durchlauf da immer der i-ste Wert im Vektor "lai-loop" verwendet wird
+      refl_prosail <- prosail(input_prospect = input_prospect, 
+                              type_lidf = type_lidf, lidf_a = lidf_a, lai = 5,
+                              hotspot = hotspot, tts = tts, tto = tto, psi = psi, 
+                              rsoil = rsoil)
+      
+      # Reduktion zu einem einzelnen Spektrum
+      surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
+                                       rsot = refl_prosail$rsot,
+                                       tts = tts,
+                                       spec_atm_sensor = spec_atm)
 
 Zur Visualisierung der NDVI-Bänder definieren wir die Wellenlängen für
 NIR (900 nm) und RED (650 nm). In beiden Fällen ziehen wir 399 ab, da
@@ -345,7 +339,7 @@ die Spektren bei 400 nm beginnen:
 Nun plotten wir das Spektrum und markieren die Positionen der
 NDVI-Bänder:
 
-    plot(400:2500, veg_spectrum_1, type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.5), xlim=c(400,2500), lwd=2)
+    plot(400:2500, surf_refl_4SAIL[,1], type="l", ylab="reflectance", xlab="wavelength [nm]", ylim=c(0,0.7), xlim=c(400,2500), lwd=2)
     grid()
     abline(v=nir_band+399, lty=2, col="darkred", lwd=2)
     abline(v=red_band+399, lty=2, col="red", lwd=2)
@@ -358,7 +352,7 @@ Dies ergibt folgenden Plot:
 
 Nun können wir den NDVI berechnen:
 
-    ndvi_1 = (veg_spectrum_1[nir_band] - veg_spectrum_1[red_band]) / (veg_spectrum_1[nir_band] + veg_spectrum_1[red_band])
+    ndvi_1 = (surf_refl_4SAIL[nir_band,] - surf_refl_4SAIL[red_band,]) / (surf_refl_4SAIL[nir_band,] + surf_refl_4SAIL[red_band,])
 
 Und uns ausgeben lassen. Der Befehl **round()**  sorgt dafür, dass wir den NDVI mit nur zwei Stellen hinter dem Komma ausgeben:
 
@@ -374,7 +368,7 @@ Dies ergibt:
 ## Hausaufgabe - Teil 2
 
 Versuchen Sie, durch Variation der PROSAIL-Parameter NDVI-Werte von 0.20,
-0.40 und 0.80 zu erzeugen. Prüfen Sie auch, ob mehrere
+0.40 und 0.80 zu erzeugen. Notieren Sie die PROSAIL-Paramter mit denen sie die jeweiligen NDVI-Werte erhalten haben. Prüfen Sie auch, ob mehrere
 Parameterkombinationen zu denselben NDVI-Werten führen, und überlegen
 Sie, was das für die Aussagekraft des NDVI bedeutet.
 
