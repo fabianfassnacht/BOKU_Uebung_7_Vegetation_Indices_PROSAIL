@@ -232,7 +232,7 @@ Um das resultierende Spektrum zu plotten, führen wir folgenden Code aus:
 
 Dies führt zu der folgenden Darstellung:
 
-![](rtm_01.png)
+![](rtm_01.png.png)
 
 **Abbildung 6: Darstellung des simulierten Spektrums**
 
@@ -297,7 +297,7 @@ Nachdem wir alle Spektren erfolgreich simuliert haben, plotten wir alle 14 Spekt
 
 Dies führt zu folgender Ausgabe:
 
-![](rtm_02.png)
+![](rtm_02.png.png)
 
 Dieser Plot zeigt, wie sich die Spektren der Vegetation verändern, wenn
 sich der LAI ändert. Sie können weiter mit diesem Code experimentieren,
@@ -346,7 +346,7 @@ NDVI-Bänder:
 
 Dies ergibt folgenden Plot:
 
-![](rtm_04.png)
+![](rtm_04.png.png)
 
 **Abbildung 9: Das simulierte Spektrum mit Markierung der zwei Wellenlängen, die für die Berechnung des NDVI verwendet werden werden**
 
@@ -360,7 +360,7 @@ Und uns ausgeben lassen. Der Befehl **round()**  sorgt dafür, dass wir den NDVI
 
 Dies ergibt:
 
-![](rtm_05.png)
+![](rtm_05.png.png)
 
 **Abbildung 10: Ausgabe des berechneten NDVI-Werten**
 
