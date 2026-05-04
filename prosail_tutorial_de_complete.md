@@ -156,13 +156,61 @@ In diesem Tutorial werden keine externen Datensätze verwendet.
 
 ### Schritt 1: Ausführen von PROSAIL im Vorwärtsmodus
 
-Um PROSAIL im Vorwärtsmodus auszuführen, müssen wir zunächst ein Paket
-namens "hsdar" herunterladen und installieren. Dies können wir wie folgt
-tun:
+Um PROSAIL im Vorwärtsmodus auszuführen, müssen wir zunächst mehrere Pakete herunterladen und installieren. Dies können wir wie folgt tun (detaillierte Infos auch hier: https://github.com/jbferet/prosail):
 
-    install.packages("hsdar")
-    library(hsdar)
+    # installieren des Pakets "remotes" welches es erlaubt Pakete von github zu installieren
+    install.packages("remotes")
+    # Installation des Pakets "prospect" (von der github seite von Jean Baptiste Feret (jbferet))
+    remotes::install_github('jbferet/prospect')
 
+Sollten bei der Ausführung der zweiten Zeile eine Anfrage bezüglich Updates von Pakete kommen, so können wir "1" eingeben und mit "Enter" bestätitgen um alle Pakete updaten. Anschließend werden wir noch das **prosail** Paket installieren mit:
+
+    remotes::install_github('jbferet/prosail')
+
+Wenn alle Pakete erfolgreich installier wurden, sind wir bereit das PROSAIL-Model im Vorwärtsmodus zu betreiben. Ein ausführliches Tutorial hierzu findet sich hier:
+
+https://jbferet.gitlab.io/prosail/articles/prosail2.html
+
+Das prosail-Paket, welches wir hier verwenden, bietet sehr umfangreiche und detaillierte Simulationsmöglichkeiten, die weit über das Ziel des Tutorials hinausgehen. Das Tutorial war ursprünglich für eine deutlich einfachere R-Implementierung von PROSAIL verfasst worden. Da diese einfachere Implementierung aber nicht mehr mit den aktuellen R Versionen kompatibel ist, verwenden wir nun diese komplexere Version. Wir werden daher nicht alle zur Verfügung stehenden Funktionen benutzen, sondern uns auf die grundsätzliche Vorwärtssimulation konzentrieren.
+
+Um eine Vorwärtssimulation durchzuführen, müssen wir eine umfangreiche Zahl an Vegetations- und Beobachtungsgeometrie-Parametern definieren um, dann ein den gesetzten Parametern entsprechendes Vegetationsspektrum zu simulieren. Der folgende Code wird hierfür verwendet (bitte die Kommentare sorgfältig durchlesen):
+
+    # Laden des prosail Pakets
+    library(prosail)
+    # Definieren der Pflanzeneigenschaften auf Blattebene
+    # Für die Simulation von Spektren von Blättern, wird das Modell "PROSPECT" verwendet
+    input_prospect <- data.frame('chl' = 40, 'car' = 8, 'ant' = 0.0, 
+                                 'ewt' = 0.01, 'lma' = 0.009, 'n_struct' = 1.5)
+    # dabei stehen die jeweiligen Abkürzungen für:
+    # chl = Chlorophyllgehalt
+    # car = Carotenoidgehalt
+    # ant = Anthocyaningehalt
+    # ewt = equivalent water thickness
+    # lma = leaf mass per area
+    # n_struct = Strukturparameter des Blattes (vereinfacht: wie "dick" ist das Blatt; korrekter:
+    # wieviele Ebenen an Zellwand-Luft  
+                                 
+    # define input variables for SAIL. 
+    lai <- 5        # LAI
+    hotspot <- 0.1  # Hot spot parameter
+    type_lidf <- 2  # leaf inclination distribution function 
+    lidf_a <- 30    # mean leaf angle
+    tts <- 30       # geometry of acquisition: sun zenith angle
+    tto <- 10       # geometry of acquisition: observer zenith angle
+    psi <- 90       # geometry of acquisition: sun-observer azimuth 
+    rsoil <- spec_soil_atbd_v2$soil_01 # soil reflectance 
+    # several soil optical properties are available
+    # - spec_soil: dark ($min_refl) and bright ($max_refl) soil reflectance
+    # - spec_soil_atbd_v2 : selection of 7 reflectance spectral used in S2 ATBD v2
+    # - spec_soil_ossl: selection of 47 reflectance spectral representative of OSSL
+    
+    # run prosail with 4SAIL
+    refl_prosail <- prosail(input_prospect = input_prospect, 
+                            type_lidf = type_lidf, lidf_a = lidf_a, lai = lai,
+                            hotspot = hotspot, tts = tts, tto = tto, psi = psi, 
+                            rsoil = rsoil)
+    
+    
 Anschließend können wir uns die Hilfeseite der Hauptfunktion des
 hsdar-Pakets ansehen, die "PROSAIL" heißt:
 
