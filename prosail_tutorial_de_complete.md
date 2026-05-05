@@ -73,7 +73,7 @@ Dies führt zu einem kontrastreicheren Bild wie in Abbildung 3 dargestellt.
 
 Alternativ können wir uns den Weg über die zwei zusätzlichen Variablen auch sparen und den NDVI direkt über den Zugriff auf die Kanäle berechnen:
 
-    ndvi_s2_winter <- (s2_winter[[7]]-s2_winter[[3]])/(s2_winter[[7]]+s2_winter[[3])
+    ndvi_s2_winter <- (s2_winter[[7]]-s2_winter[[3]])/(s2_winter[[7]]+s2_winter[[3]])
 
 Dies sollte zu einem identischen Ergebnis führen.
 
