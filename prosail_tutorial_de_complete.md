@@ -218,10 +218,10 @@ Wie bereits angedeutet, ist das hier verwendete PROSAIL Model relativ komplex un
 
 
 # Reduktion der komplexen prosail-Ausgaben in ein einzelnes Spektrum in Richtung des Beobachters
-surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
-                                 rsot = refl_prosail$rsot,
-                                 tts = tts,
-                                 spec_atm_sensor = spec_atm)
+    surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
+                                     rsot = refl_prosail$rsot,
+                                     tts = tts,
+                                     spec_atm_sensor = spec_atm)
 
 
 Um das resultierende Spektrum zu plotten, führen wir folgenden Code aus:
