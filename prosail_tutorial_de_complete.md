@@ -108,7 +108,7 @@ Die sollte zu einem Plot wie in Abbildung 5 dargestellt führen.
 
 ![](Fig_05.png)
 
-**Abbildung 5: Binäre Karte aller Pixel mit einem VIDVI > 0.3**
+**Abbildung 5: Binäre Karte aller Pixel mit einem NDVI > 0.3**
 
 Final können wir nun alle erstellten Rasterlayer abspeichern und diese dann z.B. in QGIS ansehen:
 
