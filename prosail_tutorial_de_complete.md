@@ -217,7 +217,7 @@ Nachdem alle Parameter definiert wurde, können wir PROSAIL im Vorwärtsmodus la
 Wie bereits angedeutet, ist das hier verwendete PROSAIL Model relativ komplex und dementsprechend ist der Output von der "prosail"-Funktion nicht einfach nur ein einzelnes Spektrum sondern es werden insgesamt 9 Outputs erstellt. Konkret wird z.B. unterschieden zwischen hemisphärischer Abstrahlung (die in alle Richtungen einer imaginäre Halbkugel über der Vegetation erfolgt) und bidirektionalen Effekten (d.h., dass Strahlung in bestimmte Richtungen aufgrund der Sonnen-Beobachter-Geometrie in unterschiedlicher Intesität reflektiert wird). In unserem konkreten Fall führt dies zu weit und wir werden daher diese Ergebnisse vereinfachen zu einem einzelnen Spektrum, welches die Reflektanz in Richtung des Beobachters repräsentiert:
 
 
-# Reduktion der komplexen prosail-Ausgaben in ein einzelnes Spektrum in Richtung des Beobachters
+    # Reduktion der komplexen prosail-Ausgaben in ein einzelnes Spektrum in Richtung des Beobachters
     surf_refl_4SAIL <- get_surf_refl(rdot = refl_prosail$rdot,
                                      rsot = refl_prosail$rsot,
                                      tts = tts,
